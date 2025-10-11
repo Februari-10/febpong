@@ -53,7 +53,7 @@ const gameState = {
     twoPlayer: false,
     aiTarget: DIMENSIONS.canvasHeight / 2,
     aiReactionTimer: 0,
-    ballPaused = false
+    ballPaused: false
 };
 
 const backgroundImage = new Image();
@@ -308,6 +308,7 @@ function startGame() {
 
     gameState.scores.player = 0;
     gameState.scores.ai = 0;
+    gameState.ballPaused = false;
     updateScore();
     updateScoreboardLabels();
     resetBall();
@@ -315,7 +316,9 @@ function startGame() {
     gameLoop();
 }
 
+
 function pauseAndResetBall() {
+    if (!gameState.running) return
     gameState.ballPaused = true; 
     resetBall();
     draw();
