@@ -53,6 +53,7 @@ const gameState = {
     twoPlayer: false,
     aiTarget: DIMENSIONS.canvasHeight / 2,
     aiReactionTimer: 0,
+    ballPaused = false
 };
 
 const backgroundImage = new Image();
@@ -221,6 +222,8 @@ function checkPaddleCollision(paddle, isLeftSide) {
 }
 
 function moveBall() {
+    if (gameState.ballPaused) return;
+
     ball.x += ball.dx;
     ball.y += ball.dy;
   
@@ -234,13 +237,13 @@ function moveBall() {
     if (ball.x - ball.radius < 0) {
         gameState.scores.ai++;
         updateScore();
-        resetBall();
+        pauseAndResetBall(); 
     }
    
     if (ball.x + ball.radius > DIMENSIONS.canvasWidth) {
         gameState.scores.player++;
         updateScore();
-        resetBall();
+        pauseAndResetBall();
     }
     
     if (gameState.scores.player >= GAME_CONFIG.winningScore || 
@@ -310,6 +313,15 @@ function startGame() {
     resetBall();
     gameState.running = true;
     gameLoop();
+}
+
+function pauseAndResetBall() {
+    gameState.ballPaused = true; 
+    resetBall();
+    draw();
+    setTimeout(() => {
+        gameState.ballPaused = false;
+    }, 1000);
 }
 
 ui.startBtn.addEventListener('click', () => {
