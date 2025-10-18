@@ -96,6 +96,18 @@ backgroundImage.onload = () => {
     console.log("Background loaded!");
 };
 
+function setCanvasSize() {
+    const maxWidth = Math.min(800, window.innerWidth - 40);
+    const maxHeight = Math.min(600, window.innerHeight - 200);
+    const scale = Math.min(maxWidth / 800, maxHeight / 600);
+    
+    canvas.style.width = (800 * scale) + 'px';
+    canvas.style.height = (600 * scale) + 'px';
+}
+
+setCanvasSize();
+window.addEventListener('resize', setCanvasSize);
+
 function clamp(val, min, max) {
     return Math.max(min, Math.min(max, val));
 }
