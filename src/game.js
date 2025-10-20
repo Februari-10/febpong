@@ -2,7 +2,7 @@ const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
 const COLORS = {
-    player: '#00f7ff',
+    player: '#210feb',
     ai: '#ff006e',
     ball: '#00f7ff',
     net: 'rgba(255, 255, 255, 0.3)',
