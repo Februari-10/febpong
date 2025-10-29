@@ -5,6 +5,7 @@ import { resetBall } from './entities.js';
 export const ui = {
     mainMenu: document.getElementById('mainMenu'),
     modeMenu: document.getElementById('modeMenu'),
+    difficultyMenu: document.getElementById('difficultyMenu'),
     gameWrapper: document.getElementById('gameWrapper'),
     gameOverScreen: document.getElementById('gameOverScreen'),
     winnerText: document.getElementById('winnerText'),
@@ -17,7 +18,12 @@ export const ui = {
     onePlayerBtn: document.getElementById('onePlayerBtn'),
     twoPlayerBtn: document.getElementById('twoPlayerBtn'),
     backBtn: document.getElementById('backBtn'),
+    backFromDifficultyBtn: document.getElementById('backFromDifficultyBtn'),
+    easyBtn: document.getElementById('easyBtn'),
+    mediumBtn: document.getElementById('mediumBtn'),
+    hardBtn: document.getElementById('hardBtn'),
     restartBtn: document.getElementById('restartBtn'),
+    playAgainBtn: document.getElementById('playAgainBtn'),
 };
 
 export function updateScore() {
@@ -53,6 +59,7 @@ export function endGame() {
 }
 
 function startGame() {
+    ui.difficultyMenu.classList.add('hidden');
     ui.modeMenu.classList.add('hidden');
     ui.gameWrapper.classList.remove('hidden');
 
@@ -67,14 +74,21 @@ function startGame() {
 }
 
 export function setupEventListeners() {
+    console.log('Setting up event listeners...');
+    console.log('difficultyMenu element:', ui.difficultyMenu);
+    console.log('playAgainBtn element:', ui.playAgainBtn);
+    
     ui.startBtn.addEventListener('click', () => {
         ui.mainMenu.classList.add('hidden');
         ui.modeMenu.classList.remove('hidden');
     });
 
     ui.onePlayerBtn.addEventListener('click', () => {
+        console.log('1 Player clicked, showing difficulty menu');
         gameState.twoPlayer = false;
-        startGame();
+        ui.modeMenu.classList.add('hidden');
+        ui.difficultyMenu.classList.remove('hidden');
+        console.log('difficultyMenu classes:', ui.difficultyMenu.className);
     });
 
     ui.twoPlayerBtn.addEventListener('click', () => {
@@ -82,9 +96,29 @@ export function setupEventListeners() {
         startGame();
     });
 
+    ui.easyBtn.addEventListener('click', () => {
+        gameState.difficulty = 'easy';
+        startGame();
+    });
+
+    ui.mediumBtn.addEventListener('click', () => {
+        gameState.difficulty = 'medium';
+        startGame();
+    });
+
+    ui.hardBtn.addEventListener('click', () => {
+        gameState.difficulty = 'hard';
+        startGame();
+    });
+
     ui.backBtn.addEventListener('click', () => {
         ui.modeMenu.classList.add('hidden');
         ui.mainMenu.classList.remove('hidden');
+    });
+
+    ui.backFromDifficultyBtn.addEventListener('click', () => {
+        ui.difficultyMenu.classList.add('hidden');
+        ui.modeMenu.classList.remove('hidden');
     });
 
     ui.restartBtn.addEventListener('click', () => {
@@ -94,5 +128,16 @@ export function setupEventListeners() {
         gameState.scores.player = 0;
         gameState.scores.ai = 0;
         updateScore();
+    });
+
+    ui.playAgainBtn.addEventListener('click', () => {
+        ui.gameOverScreen.classList.add('hidden');
+        gameState.scores.player = 0;
+        gameState.scores.ai = 0;
+        gameState.ballPaused = false;
+        updateScore();
+        resetBall();
+        gameState.running = true;
+        gameLoop(updateScore, endGame);
     });
 }

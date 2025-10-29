@@ -20,16 +20,23 @@
     <button id="twoPlayerBtn">2 Players</button>
     <button id="backBtn">Back</button>
     </div>
-
+    <div class="menu hidden" id="difficultyMenu">
+    <h1>Select Difficulty</h1>
+    <button id="easyBtn">Easy</button>
+    <button id="mediumBtn">Medium</button>
+    <button id="hardBtn">Hard</button>
+    <button id="backFromDifficultyBtn">Back</button>
+    </div>
         <div class="game-wrapper hidden" id="gameWrapper">
     <div class="canvas-container">
         <canvas id="gameCanvas"></canvas>
     </div>
 
             <div id="gameOverScreen" class="overlay hidden">
-                <h2 id="winnerText"></h2>
-                <p id="finalScore"></p>
-                <button id="restartBtn">Back to Menu</button>
+            <h2 id="winnerText"></h2>
+            <p id="finalScore"></p>
+            <button id="playAgainBtn">Play Again</button>
+            <button id="restartBtn">Back to Menu</button>
             </div>
 
             <div class="scoreboard">

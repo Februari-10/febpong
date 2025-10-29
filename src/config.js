@@ -22,3 +22,21 @@ export const GAME_CONFIG = {
     aiReactionDelay: 0.15,
     aiMistakeChance: 0.08,
 };
+
+export const DIFFICULTY_SETTINGS = {
+    easy: {
+        aiSpeed: 3,
+        aiReactionDelay: 0.25,
+        aiMistakeChance: 0.15,
+    },
+    medium: {
+        aiSpeed: 4,
+        aiReactionDelay: 0.15,
+        aiMistakeChance: 0.08,
+    },
+    hard: {
+        aiSpeed: 5.5,
+        aiReactionDelay: 0.08,
+        aiMistakeChance: 0.02,
+    }
+};

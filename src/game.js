@@ -1,4 +1,4 @@
-import { DIMENSIONS, GAME_CONFIG } from './config.js';
+import { DIMENSIONS, GAME_CONFIG, DIFFICULTY_SETTINGS } from './config.js';
 import { player, ai, ball, resetBall } from './entities.js';
 import { draw } from './renderer.js';
 
@@ -6,6 +6,7 @@ export const gameState = {
     running: false,
     scores: { player: 0, ai: 0 },
     twoPlayer: false,
+    difficulty: 'medium',
     aiTarget: DIMENSIONS.canvasHeight / 2,
     aiReactionTimer: 0,
     ballPaused: false
@@ -25,11 +26,15 @@ function clamp(val, min, max) {
     return Math.max(min, Math.min(max, val));
 }
 
+function getAISettings() {
+    return gameState.twoPlayer ? GAME_CONFIG : DIFFICULTY_SETTINGS[gameState.difficulty];
+}
+
 export function movePlayer() {
-    if (keys['w'] || keys['arrowup']) {
+    if (keys['w'] || (!gameState.twoPlayer && keys['arrowup'])) {
         player.y -= GAME_CONFIG.paddleSpeed;
     }
-    if (keys['s'] || keys['arrowdown']) {
+    if (keys['s'] || (!gameState.twoPlayer && keys['arrowdown'])) {
         player.y += GAME_CONFIG.paddleSpeed;
     }
     
@@ -45,12 +50,13 @@ export function moveAI() {
             ai.y += GAME_CONFIG.paddleSpeed;
         }
     } else {
+        const settings = getAISettings();
         gameState.aiReactionTimer -= 0.016;
         
         if (gameState.aiReactionTimer <= 0) {
-            gameState.aiReactionTimer = GAME_CONFIG.aiReactionDelay;
+            gameState.aiReactionTimer = settings.aiReactionDelay;
             
-            if (Math.random() < GAME_CONFIG.aiMistakeChance) {
+            if (Math.random() < settings.aiMistakeChance) {
                 const randomOffset = (Math.random() - 0.5) * 100;
                 gameState.aiTarget = ball.y + randomOffset;
             } else {
@@ -63,15 +69,15 @@ export function moveAI() {
         
         if (ball.dx > 0) {
             if (aiCenter < gameState.aiTarget - deadzone) {
-                ai.y += GAME_CONFIG.aiSpeed;
+                ai.y += settings.aiSpeed;
             } else if (aiCenter > gameState.aiTarget + deadzone) {
-                ai.y -= GAME_CONFIG.aiSpeed;
+                ai.y -= settings.aiSpeed;
             }
         } else {
             if (aiCenter < DIMENSIONS.canvasHeight / 2 - deadzone) {
-                ai.y += GAME_CONFIG.aiSpeed * 0.5;
+                ai.y += settings.aiSpeed * 0.5;
             } else if (aiCenter > DIMENSIONS.canvasHeight / 2 + deadzone) {
-                ai.y -= GAME_CONFIG.aiSpeed * 0.5;
+                ai.y -= settings.aiSpeed * 0.5;
             }
         }
     }
