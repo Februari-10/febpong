@@ -1,53 +1,8 @@
-const canvas = document.getElementById('gameCanvas');
-const ctx = canvas.getContext('2d');
+import { DIMENSIONS, GAME_CONFIG } from './config.js';
+import { player, ai, ball, resetBall } from './entities.js';
+import { draw } from './renderer.js';
 
-const COLORS = {
-    player: '#210feb',
-    ai: '#ff006e',
-    ball: '#00f7ff',
-    net: 'rgba(255, 255, 255, 0.3)',
-};
-
-const DIMENSIONS = {
-    canvasWidth: 800,
-    canvasHeight: 600,
-    netWidth: 4,
-    netHeight: 15,
-    netGap: 20,
-};
-
-const GAME_CONFIG = {
-    winningScore: 5,
-    paddleWidth: 15,
-    paddleHeight: 100,
-    paddleSpeed: 8,
-    aiSpeed: 4,
-    aiReactionDelay: 0.15,
-    aiMistakeChance: 0.08,
-};
-
-canvas.width = DIMENSIONS.canvasWidth;
-canvas.height = DIMENSIONS.canvasHeight;
-
-const ui = {
-    mainMenu: document.getElementById('mainMenu'),
-    modeMenu: document.getElementById('modeMenu'),
-    gameWrapper: document.getElementById('gameWrapper'),
-    gameOverScreen: document.getElementById('gameOverScreen'),
-    winnerText: document.getElementById('winnerText'),
-    finalScore: document.getElementById('finalScore'),
-    playerScore: document.getElementById('playerScore'),
-    aiScore: document.getElementById('aiScore'),
-    player1Label: document.getElementById('player1Label'),
-    player2Label: document.getElementById('player2Label'),
-    startBtn: document.getElementById('startBtn'),
-    onePlayerBtn: document.getElementById('onePlayerBtn'),
-    twoPlayerBtn: document.getElementById('twoPlayerBtn'),
-    backBtn: document.getElementById('backBtn'),
-    restartBtn: document.getElementById('restartBtn'),
-};
-
-const gameState = {
+export const gameState = {
     running: false,
     scores: { player: 0, ai: 0 },
     twoPlayer: false,
@@ -56,33 +11,7 @@ const gameState = {
     ballPaused: false
 };
 
-const backgroundImage = new Image();
-backgroundImage.src = "assets/PenguinLogo-no-background.png";
-
-const player = {
-    x: 30,
-    y: DIMENSIONS.canvasHeight / 2 - GAME_CONFIG.paddleHeight / 2,
-    width: GAME_CONFIG.paddleWidth,
-    height: GAME_CONFIG.paddleHeight,
-};
-
-const ai = {
-    x: DIMENSIONS.canvasWidth - 30 - GAME_CONFIG.paddleWidth,
-    y: DIMENSIONS.canvasHeight / 2 - GAME_CONFIG.paddleHeight / 2,
-    width: GAME_CONFIG.paddleWidth,
-    height: GAME_CONFIG.paddleHeight,
-};
-
-const ball = {
-    x: DIMENSIONS.canvasWidth / 2,
-    y: DIMENSIONS.canvasHeight / 2,
-    radius: 10,
-    speed: 5,
-    dx: 5,
-    dy: 3
-};
-
-const keys = {};
+export const keys = {};
 
 document.addEventListener('keydown', (e) => {
     keys[e.key.toLowerCase()] = true;
@@ -92,46 +21,22 @@ document.addEventListener('keyup', (e) => {
     keys[e.key.toLowerCase()] = false;
 });
 
-backgroundImage.onload = () => {
-    console.log("Background loaded!");
-};
-
-function setCanvasSize() {
-    const maxWidth = Math.min(800, window.innerWidth - 40);
-    const maxHeight = Math.min(600, window.innerHeight - 200);
-    const scale = Math.min(maxWidth / 800, maxHeight / 600);
-    
-    canvas.style.width = (800 * scale) + 'px';
-    canvas.style.height = (600 * scale) + 'px';
-}
-
-setCanvasSize();
-window.addEventListener('resize', setCanvasSize);
-
 function clamp(val, min, max) {
     return Math.max(min, Math.min(max, val));
 }
 
-function withShadow(color, blur, drawFn) {
-    ctx.save();
-    ctx.shadowColor = color;
-    ctx.shadowBlur = blur;
-    drawFn();
-    ctx.restore();
-}
-
-function movePlayer() {
-    if (keys['w']) {
+export function movePlayer() {
+    if (keys['w'] || keys['arrowup']) {
         player.y -= GAME_CONFIG.paddleSpeed;
     }
-    if (keys['s']) {
+    if (keys['s'] || keys['arrowdown']) {
         player.y += GAME_CONFIG.paddleSpeed;
     }
     
     player.y = clamp(player.y, 0, DIMENSIONS.canvasHeight - player.height);
 }
 
-function moveAI() {
+export function moveAI() {
     if (gameState.twoPlayer) {
         if (keys['arrowup']) {
             ai.y -= GAME_CONFIG.paddleSpeed;
@@ -174,49 +79,6 @@ function moveAI() {
     ai.y = clamp(ai.y, 0, DIMENSIONS.canvasHeight - ai.height);
 }
 
-function drawPaddle(paddle, color) {
-    withShadow(color, 15, () => {
-        ctx.fillStyle = color;
-        ctx.fillRect(paddle.x, paddle.y, paddle.width, paddle.height);
-    });
-}
-
-function drawBall() {
-    withShadow(COLORS.ball, 20, () => {
-        ctx.fillStyle = COLORS.ball;
-        ctx.beginPath();
-        ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
-        ctx.fill();
-    });
-}
-
-function drawNet() {
-    ctx.fillStyle = COLORS.net;
-    for (let i = 0; i < DIMENSIONS.canvasHeight; i += DIMENSIONS.netHeight + DIMENSIONS.netGap) {
-        ctx.fillRect(
-            DIMENSIONS.canvasWidth / 2 - DIMENSIONS.netWidth / 2,
-            i,
-            DIMENSIONS.netWidth,
-            DIMENSIONS.netHeight
-        );
-    }
-}
-
-function draw() {
-    ctx.clearRect(0, 0, DIMENSIONS.canvasWidth, DIMENSIONS.canvasHeight);
-
-    const imgWidth = 200;
-    const imgHeight = 200;
-    const imgX = (DIMENSIONS.canvasWidth - imgWidth) / 2;
-    const imgY = (DIMENSIONS.canvasHeight - imgHeight) / 2;
-
-    ctx.drawImage(backgroundImage, imgX, imgY, imgWidth, imgHeight);
-
-    drawPaddle(player, COLORS.player);
-    drawPaddle(ai, COLORS.ai);
-    drawBall();
-}
-
 function checkPaddleCollision(paddle, isLeftSide) {
     const ballInRange = 
         ball.y > paddle.y &&
@@ -233,7 +95,7 @@ function checkPaddleCollision(paddle, isLeftSide) {
     }
 }
 
-function moveBall() {
+export function moveBall(updateScore, endGame) {
     if (gameState.ballPaused) return;
 
     ball.x += ball.dx;
@@ -264,73 +126,8 @@ function moveBall() {
     }
 }
 
-function resetBall() {
-    ball.x = DIMENSIONS.canvasWidth / 2;
-    ball.y = DIMENSIONS.canvasHeight / 2;
-    ball.speed = 5;
-    ball.dx = (Math.random() > 0.5 ? 1 : -1) * 5;
-    ball.dy = (Math.random() - 0.5) * 6;
-}
-
-function updateScore() {
-    ui.playerScore.textContent = gameState.scores.player;
-    ui.aiScore.textContent = gameState.scores.ai;
-}
-
-function updateScoreboardLabels() {
-    if (gameState.twoPlayer) {
-        ui.player1Label.textContent = 'Player 1';
-        ui.player2Label.textContent = 'Player 2';
-    } else {
-        ui.player1Label.textContent = 'You';
-        ui.player2Label.textContent = 'Opponent';
-    }
-}
-
-function endGame() {
-    gameState.running = false;
-    
-    if (gameState.twoPlayer) {
-        ui.winnerText.textContent = gameState.scores.player >= GAME_CONFIG.winningScore 
-            ? 'Player 1 Wins!' 
-            : 'Player 2 Wins!';
-    } else {
-        ui.winnerText.textContent = gameState.scores.player >= GAME_CONFIG.winningScore 
-            ? 'You Win!' 
-            : 'AI Wins!';
-    }
-    
-    ui.finalScore.textContent = `Final Score: ${gameState.scores.player} - ${gameState.scores.ai}`;
-    ui.gameOverScreen.classList.remove('hidden');
-}
-
-function gameLoop() {
-    if (gameState.running) {
-        movePlayer(); 
-        moveBall();
-        moveAI();
-        draw();
-        requestAnimationFrame(gameLoop);
-    }
-}
-
-function startGame() {
-    ui.modeMenu.classList.add('hidden');
-    ui.gameWrapper.classList.remove('hidden');
-
-    gameState.scores.player = 0;
-    gameState.scores.ai = 0;
-    gameState.ballPaused = false;
-    updateScore();
-    updateScoreboardLabels();
-    resetBall();
-    gameState.running = true;
-    gameLoop();
-}
-
-
-function pauseAndResetBall() {
-    if (!gameState.running) return
+export function pauseAndResetBall() {
+    if (!gameState.running) return;
     gameState.ballPaused = true; 
     resetBall();
     draw();
@@ -339,31 +136,12 @@ function pauseAndResetBall() {
     }, 1000);
 }
 
-ui.startBtn.addEventListener('click', () => {
-    ui.mainMenu.classList.add('hidden');
-    ui.modeMenu.classList.remove('hidden');
-});
-
-ui.onePlayerBtn.addEventListener('click', () => {
-    gameState.twoPlayer = false;
-    startGame();
-});
-
-ui.twoPlayerBtn.addEventListener('click', () => {
-    gameState.twoPlayer = true;
-    startGame();
-});
-
-ui.backBtn.addEventListener('click', () => {
-    ui.modeMenu.classList.add('hidden');
-    ui.mainMenu.classList.remove('hidden');
-});
-
-ui.restartBtn.addEventListener('click', () => {
-    ui.gameOverScreen.classList.add('hidden');
-    ui.gameWrapper.classList.add('hidden');
-    ui.mainMenu.classList.remove('hidden');
-    gameState.scores.player = 0;
-    gameState.scores.ai = 0;
-    updateScore();
-});
+export function gameLoop(updateScore, endGame) {
+    if (gameState.running) {
+        movePlayer(); 
+        moveBall(updateScore, endGame);
+        moveAI();
+        draw();
+        requestAnimationFrame(() => gameLoop(updateScore, endGame));
+    }
+}

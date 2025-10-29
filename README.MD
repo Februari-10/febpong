@@ -8,6 +8,6 @@
 
 **Discord:** 
 
-## Instructions 
+## Info
 - First player to reach 5 points wins! 
 - You can choose between 1 player or 2 players
